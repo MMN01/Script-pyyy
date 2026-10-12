@@ -9,7 +9,7 @@ expediteur = "damirzizo4@gmail.com"
 destinataire = "mnyahya007@gmail.com"
 
 # Mot de passe d'application Gmail
-mot_de_passe = os.environ["GMAIL_APP_PASSWORD"]
+mot_de_passe = input("entre ton password")
 
 # Creer un fichier de test
 fichier = Path(os.environ["TEMP"]) / "test_flipper.txt"
