@@ -1,42 +1,38 @@
-from pathlib import Path
+
+import smtplib
 import os
-import subprocess
+from pathlib import Path
+from email.message import EmailMessage
 
-# 1. Localiser le Bureau Windows
-desktop = Path.home() / "Desktop"
+# Configuration Gmail
+expediteur = "damirzizo4@gmail.com"
+destinataire = "mnyahya007@gmail.com"
 
-# 2. Creer le dossier du TP
-dossier = Path(os.environ["TEMP"]) / "FlipperTP"
-dossier.mkdir(parents=True, exist_ok=True)
+# Mot de passe d'application Gmail
+mot_de_passe = os.environ["GMAIL_APP_PASSWORD"]
 
-# 3. Creer le fichier inventaire.txt
-inventaire = dossier / "inventaire.txt"
+# Creer un fichier de test
+fichier = Path(os.environ["TEMP"]) / "test_flipper.txt"
+fichier.write_text("Hello amigo !", encoding="utf-8")
 
-with inventaire.open("w", encoding="utf-8") as f:
-    f.write("INVENTAIRE DU BUREAU\n")
-    f.write("===================\n\n")
+# Preparer le message
+mail = EmailMessage()
+mail["From"] = expediteur
+mail["To"] = destinataire
+mail["Subject"] = "TP Flipper Zero"
+mail.set_content("Voici mon fichier de test.")
 
-    for element in sorted(desktop.iterdir()):
-        f.write(element.name + "\n")
+# Ajouter la piece jointe
+mail.add_attachment(
+    fichier.read_bytes(),
+    maintype="text",
+    subtype="plain",
+    filename=fichier.name
+)
 
-print("Inventaire cree :", inventaire)
+# Envoyer automatiquement
+with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
+    smtp.login(expediteur, mot_de_passe)
+    smtp.send_message(mail)
 
-# 4. Preparer un email avec Outlook
-import win32com.client
-
-outlook = win32com.client.Dispatch("Outlook.Application")
-mail = outlook.CreateItem(0)
-
-# Adresse du destinataire
-mail.To = "ami@example.com"
-
-mail.Subject = "TP Flipper Zero - Inventaire"
-mail.Body = "Bonjour, voici mon fichier inventaire."
-
-# 5. Ajouter automatiquement la piece jointe
-mail.Attachments.Add(str(inventaire))
-
-# 6. Ouvrir le message pour verification et envoi
-mail.Display()
-
-print("Email prepare avec la piece jointe.")
+print("Email envoye avec succes !")
