@@ -21,3 +21,24 @@ with open(inventaire, "w", encoding="utf-8") as fichier:
 print("Inventaire cree avec succes !")
 print("Emplacement :", inventaire)
 print("Nombre d'elements :", len(elements))
+
+
+import webbrowser
+from urllib.parse import urlencode
+
+ami = "mnyahya007@gmail.com"
+
+parametres = urlencode({
+    "subject": "TP Flipper Zero - Inventaire",
+    "body": (
+        "Salut,\n\n"
+        "Voici le fichier inventaire.txt "
+        "genere pendant mon TP.\n\n"
+        "Je te l'envoie en piece jointe."
+    )
+})
+
+webbrowser.open(
+    "https://mail.google.com/mail/?view=cm&fs=1&to="
+    + ami + "&" + parametres
+)
