@@ -1,38 +1,33 @@
+import socket
 
-import smtplib
-import os
-from pathlib import Path
-from email.message import EmailMessage
+HOST = "0.0.0.0"
+PORT = 5000
 
-# Configuration Gmail
-expediteur = "damirzizo4@gmail.com"
-destinataire = "mnyahya007@gmail.com"
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as serveur:
+    serveur.bind((HOST, PORT))
+    serveur.listen(1)
 
-# Mot de passe d'application Gmail
-mot_de_passe = input("entre ton password")
+    print("Serveur demarre.")
+    print("En attente d'une connexion...")
 
-# Creer un fichier de test
-fichier = Path(os.environ["TEMP"]) / "test_flipper.txt"
-fichier.write_text("Hello amigo !", encoding="utf-8")
+    connexion, adresse = serveur.accept()
 
-# Preparer le message
-mail = EmailMessage()
-mail["From"] = expediteur
-mail["To"] = destinataire
-mail["Subject"] = "TP Flipper Zero"
-mail.set_content("Voici mon fichier de test.")
+    with connexion:
+        print("Client connecte :", adresse)
 
-# Ajouter la piece jointe
-mail.add_attachment(
-    fichier.read_bytes(),
-    maintype="text",
-    subtype="plain",
-    filename=fichier.name
-)
+        while True:
+            message = connexion.recv(1024)
 
-# Envoyer automatiquement
-with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
-    smtp.login(expediteur, mot_de_passe)
-    smtp.send_message(mail)
+            if not message:
+                break
 
-print("Email envoye avec succes !")
+            texte = message.decode("utf-8")
+            print("Message recu :", texte)
+
+            if texte.lower() == "quit":
+                break
+
+            reponse = input("Reponse : ")
+            connexion.sendall(reponse.encode("utf-8"))
+
+print("Connexion terminee.")
